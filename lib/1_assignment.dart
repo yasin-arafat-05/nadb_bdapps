@@ -1,5 +1,17 @@
 import "dart:io";
+/*
 
+#########################
+This is first assignment
+#########################
+
+
+#########################
+assignment 2 github link: 
+#########################
+https://github.com/yasin-arafat-05/nadb_bdapps/blob/main/lib/2nd_class_part_3_std_manager.dart
+
+*/
 int main() {
   //
   // dynmic can automatically handle null safety.
