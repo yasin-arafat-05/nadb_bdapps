@@ -18,23 +18,69 @@ class HomeScreen extends StatelessWidget {
               decoration: BoxDecoration(color: AppTheme.primaryBlue),
               width: MediaQuery.of(context).size.width,
               padding: EdgeInsets.all(30),
-              child: Column(
+              child: Stack(
                 children: [
-                  Text("Good Morning", style: TextStyle(color: Colors.white)),
-                  Text("Ready To Learn", style: TextStyle(color: Colors.white)),
+                  Column(
+                    spacing: 20,
+                    children: [
+                      Text(
+                        "Good Morning",
+                        style: TextStyle(color: Colors.white),
+                      ),
+                      Text(
+                        "Ready To Learn",
+                        style: TextStyle(color: Colors.white),
+                      ),
+                      Row(
+                        mainAxisAlignment: .spaceBetween,
+                        children: [
+                          Container(
+                            padding: EdgeInsets.all(10.0),
+                            decoration: BoxDecoration(color: Colors.orange),
+                            child: Text('12 Questions'),
+                          ),
+                          Container(
+                            padding: EdgeInsets.all(10.0),
+                            decoration: BoxDecoration(color: Colors.orange),
+                            child: Text('12 Questions'),
+                          ),
+                          Container(
+                            padding: EdgeInsets.all(10.0),
+                            decoration: BoxDecoration(color: Colors.orange),
+                            child: Text('12 Questions'),
+                          ),
+                        ],
+                      ),
+                      Container(
+                        width: double.infinity,
+                        padding: EdgeInsets.all(10),
+                        decoration: BoxDecoration(
+                          color: Colors.grey,
+                          borderRadius: BorderRadius.circular(30),
+                        ),
+                        child: Column(
+                          children: [
+                            Text("Flutter Quiz"),
+                            ElevatedButton(
+                              onPressed: () {
+                                Navigator.of(context).push(
+                                  MaterialPageRoute(
+                                    builder: (context) => QuizeScreen(),
+                                  ),
+                                );
+                              },
+                              child: Text("Start Quiz"),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
                 ],
               ),
             ),
 
-            // --------------Functionality------------------
-            ElevatedButton(
-              onPressed: () {
-                Navigator.of(
-                  context,
-                ).push(MaterialPageRoute(builder: (context) => QuizeScreen()));
-              },
-              child: Text("Start Quiz"),
-            ),
+            // -------------- Functionality Button ------------------
             ElevatedButton(
               onPressed: () {
                 Navigator.of(context).push(
