@@ -31,13 +31,13 @@ class _SplashScreenState extends State<SplashScreen>
 
     // for doing animation we need to define an controller:
     // vsync -> animation sync with mobile referesh rate:
-    _logScaleAnimation = AnimationController(
+    _logoAnimationController = AnimationController(
       vsync: this,
       duration: Duration(milliseconds: 800),
     );
 
     // from where(begin) to where(end) ---> (between),
-    _logOpacityAnimation = Tween(begin: 0.4, end: 1.0).animate(
+    _logScaleAnimation = Tween(begin: 0.4, end: 1.0).animate(
       CurvedAnimation(parent: _logoAnimationController, curve: Curves.easeOut),
     );
 

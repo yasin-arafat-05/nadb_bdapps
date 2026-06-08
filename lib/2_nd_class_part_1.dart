@@ -24,7 +24,7 @@ int main() {
   });
 
   // =========== Set ===============
-  final Set<int> ids = {101, 102, 103, 103, 104};
+  final Set<int> ids = {101, 102, 103, 108, 104};
   print('no duplicate will be print $ids');
 
   // ======== Funcation List Methods =====================
@@ -54,4 +54,3 @@ int main() {
 
   return 0;
 }
-

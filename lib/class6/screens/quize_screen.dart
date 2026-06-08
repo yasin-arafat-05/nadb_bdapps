@@ -1,7 +1,29 @@
+import 'package:bdapps/class6/data/question_data.dart';
+import 'package:bdapps/class6/models/question.dart';
+import 'package:bdapps/class6/models/quiz_result.dart';
 import 'package:flutter/material.dart';
 
-class QuizeScreen extends StatelessWidget {
+class QuizeScreen extends StatefulWidget {
   const QuizeScreen({super.key});
+
+  @override
+  State<QuizeScreen> createState() => _QuizeScreenState();
+}
+
+class _QuizeScreenState extends State<QuizeScreen> {
+  int currentIndex = 0;
+  int _score = 0;
+  int? _selectedIndex;
+  bool _answered = false;
+  Question? currentQuestion;
+  final List<AnswerRecord> _records = [];
+  final List<Question> questions = QuestionData.flutterQuestion;
+
+  @override
+  void initState() {
+    super.initState();
+    Question currentQuestion = questions[currentIndex];
+  }
 
   @override
   Widget build(BuildContext context) {
