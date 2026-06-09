@@ -1,3 +1,6 @@
+/*
+Main.dart file 
+*/
 import 'package:bdapps/class6/screens/splash_screen.dart';
 import 'package:flutter/material.dart';
 
