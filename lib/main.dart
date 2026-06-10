@@ -16,6 +16,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     // start from MaterialApp
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       title: 'Quize Master',
       theme: ThemeData(colorScheme: .fromSeed(seedColor: Colors.deepPurple)),
       home: const SplashScreen(),
