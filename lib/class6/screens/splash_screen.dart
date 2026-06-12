@@ -118,20 +118,86 @@ Two type of animation:
 //   }
 // }
 
-class _SplashScreenState extends State<SplashScreen> {
+class _SplashScreenState extends State<SplashScreen>
+    with TickerProviderStateMixin {
+  late AnimationController _animationController;
+  late AnimationController _scaleController;
+  late AnimationController _sunBurnController;
+  late Animation<double> _scaleAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    _animationController = AnimationController(
+      vsync: this,
+      duration: Duration(seconds: 5),
+    );
+
+    _scaleController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1500),
+    );
+
+    _scaleAnimation = Tween<double>(begin: 1.0, end: 15.0).animate(
+      CurvedAnimation(parent: _scaleController, curve: Curves.easeInCubic),
+    );
+
+    _sunBurnController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1000),
+    );
+
+    _animationController.addStatusListener((status) {
+      if (status == AnimationStatus.completed) {
+        _scaleController.forward();
+      }
+    });
+
+    _scaleController.addStatusListener((status) {
+      if (status == AnimationStatus.completed) {
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (context) => const HomeScreen()),
+        );
+      }
+    });
+
+    _animationController.forward();
+    _sunBurnController.repeat();
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    _animationController.dispose();
+    _sunBurnController.dispose();
+    _scaleController.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppTheme.primaryBlue,
       body: SafeArea(
         child: Container(
-          color: Colors.grey.shade600,
-          child: CustomPaint(
-            size: Size(double.infinity, double.infinity),
-
-            // here we will pass custom painter but it's a abstract class:
-            // we need to extends it's body
-            painter: MasterPainter(progress: 0.4),
+          color: Colors.grey.shade900,
+          child: ScaleTransition(
+            scale: _scaleAnimation,
+            child: AnimatedBuilder(
+              animation: Listenable.merge([
+                _animationController,
+                _sunBurnController,
+                _scaleController,
+              ]),
+              builder: (context, child) => CustomPaint(
+                size: Size(double.infinity, double.infinity),
+                // here we will pass custom painter but it's a abstract class:
+                // we need to extends it's body
+                painter: MasterPainter(
+                  progress: _animationController.value,
+                  burnValue: _sunBurnController.value,
+                ),
+              ),
+            ),
           ),
         ),
       ),
@@ -142,7 +208,8 @@ class _SplashScreenState extends State<SplashScreen> {
 // =======================================================
 class MasterPainter extends CustomPainter {
   final double progress; // 0.0 to 1.0
-  MasterPainter({this.progress = 1.0});
+  final double burnValue;
+  MasterPainter({this.progress = 1.0, this.burnValue = 0.0});
   /*
     - As it's a abstract class we need to must implement 
         - paint: here we will create objects etc.
@@ -150,6 +217,38 @@ class MasterPainter extends CustomPainter {
   */
   @override
   void paint(Canvas canvas, Size size) {
+    // ========================Draw a cirle============================
+    final Offset c = Offset(size.width / 2, size.height / 2);
+    const double r = 100.0;
+    final Paint sunPaint = Paint()
+      ..style = PaintingStyle.fill
+      ..isAntiAlias = true;
+
+    for (double i = 0; i < 3; i++) {
+      // burnValue (Pulsate)
+      final double dynamicRadius = (r - 10) - (i * 15) + (burnValue * 8);
+
+      if (dynamicRadius > 0) {
+        sunPaint.shader = RadialGradient(
+          colors: [
+            Colors.white, // center will be white
+            Colors.yellow.shade600, //in the middle will be yellow
+            Colors.orange.shade800.withAlpha(30), // outsize will be orange
+          ],
+          stops: const [0.0, 0.5, 1.0],
+        ).createShader(Rect.fromCircle(center: c, radius: dynamicRadius));
+
+        // bar filter will look like the a buring suns
+        sunPaint.maskFilter = MaskFilter.blur(
+          BlurStyle.normal,
+          (6 * (i + 1) * (progress > 0 ? progress : 0.01)),
+        );
+
+        canvas.drawCircle(c, dynamicRadius, sunPaint);
+      }
+    }
+
+    // ========================For the circle Animation================
     // define center of the circle:
     final Offset center = Offset(size.width / 2, size.height / 2);
     // define radious of the circle:
@@ -165,12 +264,15 @@ class MasterPainter extends CustomPainter {
     // now create dancing wave:
     final Path path = Path();
     // we take 360 points on the circle
-    const int points = 360;
+    const int totalPoints = 360;
     //
     const int waveCount = 30;
     const double A = 10.0;
-    for (int i = 0; i < points; i++) {
-      final double angle = (i * 2 * math.pi) / points;
+    final int visiblePoints = (totalPoints * progress)
+        .clamp(0, totalPoints)
+        .toInt();
+    for (int i = 0; i < visiblePoints; i++) {
+      final double angle = (i * 2 * math.pi) / totalPoints;
 
       // wave effect: y = Asin(omega.T)
       final double wave = A * math.sin(waveCount * angle);
@@ -194,23 +296,24 @@ class MasterPainter extends CustomPainter {
     // // 0.3, 0.5, 0.8, 1.0
     // 0.3 -> show 30% of the circle,
     // 0.5 -> 50% of the cirle
-    if (progress < 1.0) {
+    if (progress >= 1.0) {
+      path.close();
+      canvas.drawPath(path, paint);
+    } else {
       final PathMetrics metrics = path.computeMetrics();
       final Path visiblePath = Path();
-
       for (final metric in metrics) {
         final double length = metric.length * progress;
         visiblePath.addPath(metric.extractPath(0, length), Offset.zero);
       }
       canvas.drawPath(visiblePath, paint);
-    } else {
-      canvas.drawPath(path, paint);
     }
   }
 
   @override
   bool shouldRepaint(covariant MasterPainter oldDelegate) {
     // we don't need to repaint
-    return oldDelegate.progress != progress;
+    return oldDelegate.progress != progress ||
+        oldDelegate.burnValue != burnValue;
   }
 }
